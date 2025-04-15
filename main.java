@@ -235,3 +235,16 @@ static List<String> generateMoves(boolean white) {
 
     return moves;
 }
+// Castling
+if (white && !whiteKingMoved) {
+    if (!whiteRightRookMoved && board[7][5] == '.' && board[7][6] == '.' && board[7][7] == 'R')
+        moves.add("e1g1"); // White kingside
+    if (!whiteLeftRookMoved && board[7][1] == '.' && board[7][2] == '.' && board[7][3] == '.' && board[7][0] == 'R')
+        moves.add("e1c1"); // White queenside
+}
+if (!white && !blackKingMoved) {
+    if (!blackRightRookMoved && board[0][5] == '.' && board[0][6] == '.' && board[0][7] == 'r')
+        moves.add("e8g8"); // Black kingside
+    if (!blackLeftRookMoved && board[0][1] == '.' && board[0][2] == '.' && board[0][3] == '.' && board[0][0] == 'r')
+        moves.add("e8c8"); // Black queenside
+}
