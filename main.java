@@ -154,3 +154,84 @@ public class ChessEngine {
         return "" + (char)('a' + c1) + (8 - r1) + (char)('a' + c2) + (8 - r2);
     }
 }
+
+
+
+static List<String> generateMoves(boolean white) {
+    List<String> moves = new ArrayList<>();
+    int direction = white ? -1 : 1;
+
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
+            char piece = board[r][c];
+            if (piece == '.' || Character.isUpperCase(piece) != white) continue;
+
+            switch (Character.toLowerCase(piece)) {
+                case 'p': // Pawn
+                    int nextR = r + direction;
+                    if (isInBounds(nextR, c) && board[nextR][c] == '.') {
+                        moves.add(toMoveString(r, c, nextR, c));
+                        // Double move from initial rank
+                        if ((white && r == 6) || (!white && r == 1)) {
+                            int jumpR = r + 2 * direction;
+                            if (board[jumpR][c] == '.')
+                                moves.add(toMoveString(r, c, jumpR, c));
+                        }
+                    }
+                    // Captures
+                    for (int dc = -1; dc <= 1; dc += 2) {
+                        int capC = c + dc;
+                        if (isInBounds(nextR, capC) && board[nextR][capC] != '.' &&
+                            Character.isUpperCase(board[nextR][capC]) != white) {
+                            moves.add(toMoveString(r, c, nextR, capC));
+                        }
+                    }
+                    break;
+
+                case 'n': // Knight
+                    int[][] knightDirs = {
+                        {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},
+                        {1, -2}, {1, 2}, {2, -1}, {2, 1}
+                    };
+                    for (int[] d : knightDirs) {
+                        int nr = r + d[0], nc = c + d[1];
+                        if (isInBounds(nr, nc) && (board[nr][nc] == '.' ||
+                            Character.isUpperCase(board[nr][nc]) != white)) {
+                            moves.add(toMoveString(r, c, nr, nc));
+                        }
+                    }
+                    break;
+
+                case 'b': // Bishop
+                    generateSlidingMoves(moves, r, c, white, new int[][]{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}});
+                    break;
+
+                case 'r': // Rook
+                    generateSlidingMoves(moves, r, c, white, new int[][]{{-1, 0}, {1, 0}, {0, -1}, {0, 1}});
+                    break;
+
+                case 'q': // Queen
+                    generateSlidingMoves(moves, r, c, white, new int[][]{
+                        {-1, 0}, {1, 0}, {0, -1}, {0, 1},
+                        {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
+                    });
+                    break;
+
+                case 'k': // King (no castling)
+                    for (int dr = -1; dr <= 1; dr++) {
+                        for (int dc = -1; dc <= 1; dc++) {
+                            if (dr == 0 && dc == 0) continue;
+                            int nr = r + dr, nc = c + dc;
+                            if (isInBounds(nr, nc) && (board[nr][nc] == '.' ||
+                                Character.isUpperCase(board[nr][nc]) != white)) {
+                                moves.add(toMoveString(r, c, nr, nc));
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    return moves;
+}
